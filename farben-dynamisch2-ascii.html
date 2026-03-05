@@ -21,32 +21,26 @@
             color: white;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 16px;
-            box-sizing: border-box;
             perspective: 1500px;
+            overflow: hidden;
         }
 
         /* Die 3D-Glaskarte */
         .cyber-card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
-            padding: 24px;
+            padding: 40px;
             border-radius: 20px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(255,255,255,0.05);
             display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-            align-items: flex-start;
-            justify-content: center;
+            gap: 40px;
+            align-items: center;
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
-            width: 100%;
-            max-width: 480px;
-            box-sizing: border-box;
         }
 
         /* Radio Buttons als Neon-Auswahl */
@@ -129,6 +123,16 @@
             100% { transform: scale(1); filter: hue-rotate(0deg); }
         }
         .anim-glitch { animation: glitch 0.2s ease; }
+
+        /* ── NUR MOBILE ── */
+        @media (max-width: 768px) {
+            body { height: auto; min-height: 100vh; align-items: flex-start; overflow: auto; padding: 16px; box-sizing: border-box; }
+            .cyber-card { flex-direction: column; gap: 20px; padding: 20px; width: 100%; max-width: 340px; box-sizing: border-box; align-items: center; }
+            .controls { transform: none; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+            .grid { grid-template-columns: repeat(4, 1fr); width: min(260px, 75vw); }
+            .grid .cell { width: 100%; height: auto; aspect-ratio: 1; }
+            .stats-panel { transform: none; width: 100%; box-sizing: border-box; min-width: unset; }
+        }
 
     </style>
 </head>

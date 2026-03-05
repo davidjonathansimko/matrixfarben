@@ -16,94 +16,78 @@
             background-color: var(--bg-color);
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 16px;
-            box-sizing: border-box;
             perspective: 1000px;
         }
 
         .main-container {
             display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-            align-items: flex-start;
-            justify-content: center;
+            gap: 50px;
+            align-items: center;
             background: var(--card-bg);
-            padding: 24px;
+            padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 50px var(--shadow);
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
-            width: 100%;
-            max-width: 600px;
-            box-sizing: border-box;
         }
 
-        /* Linke Seite: Steuerung */
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
             transform: translateZ(30px);
         }
 
         .controls label {
             cursor: pointer;
-            padding: 8px 12px;
+            padding: 8px 15px;
             border-radius: 8px;
             transition: background 0.3s;
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: bold;
-            font-size: 15px;
         }
 
         .controls label:hover { background: #f0f0f0; }
 
-        /* Mitte: Das Grid */
-        .grid-wrapper {
-            perspective: 1000px;
-        }
+        .grid-wrapper { perspective: 1000px; }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(4, 60px);
+            gap: 10px;
             transform-style: preserve-3d;
-            width: 100%;
-            max-width: 280px;
         }
 
         .cell {
-            aspect-ratio: 1;
+            width: 60px;
+            height: 60px;
             border-radius: 8px;
             cursor: pointer;
             border: 2px solid rgba(255,255,255,0.2);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-width: 0;
         }
 
         .cell:hover {
-            transform: translateZ(30px) scale(1.15) rotate(5deg);
+            transform: translateZ(50px) scale(1.2) rotate(5deg);
             box-shadow: 0 15px 30px rgba(0,0,0,0.3);
             z-index: 10;
         }
 
-        /* Rechte Seite: Statistik */
         .stats {
-            min-width: 130px;
-            padding: 16px;
+            min-width: 150px;
+            padding: 20px;
             background: #f9f9f9;
             border-radius: 12px;
             border-left: 5px solid #ddd;
             transform: translateZ(30px);
             font-family: 'Courier New', Courier, monospace;
             line-height: 1.6;
-            font-size: 13px;
         }
 
         .rot  { background-color: #ff4d4d; }
@@ -111,9 +95,42 @@
         .blau { background-color: #3498db; }
         .gelb { background-color: #f1c40f; }
 
-        @media (max-width: 400px) {
-            .main-container { padding: 16px; gap: 16px; }
-            .grid { width: 100%; }
+        /* ── NUR MOBILE ── */
+        @media (max-width: 768px) {
+            body {
+                align-items: flex-start;
+                padding: 16px;
+                box-sizing: border-box;
+            }
+            .main-container {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+                align-items: center;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 10px;
+                transform: none;
+            }
+            .grid {
+                grid-template-columns: repeat(4, 1fr);
+                width: min(280px, 80vw);
+                gap: 8px;
+            }
+            .grid .cell {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1;
+            }
+            .stats {
+                transform: none;
+                width: 100%;
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>

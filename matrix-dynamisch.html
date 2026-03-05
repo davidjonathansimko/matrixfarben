@@ -10,39 +10,34 @@
             background-color: #f0f0f0; 
             display: flex; 
             justify-content: center; 
-            align-items: flex-start;
-            min-height: 100vh; 
+            align-items: center; 
+            height: 100vh; 
             margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
             perspective: 1000px;
         }
         .container { 
             background-color: #dcdcdc; 
-            padding: 20px; 
+            padding: 30px; 
             border: 1px solid #aaa; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             transition: transform 0.1s ease-out;
             border-radius: 8px;
             text-align: center;
-            width: 100%;
-            max-width: 360px;
-            box-sizing: border-box;
         }
         h3 { text-align: left; margin-top: 0; color: #444; }
         table { 
             border-collapse: collapse; 
             margin: 20px auto; 
             background: white;
-            width: 100%;
             table-layout: fixed;
         }
         td { 
             border: 1px solid #999; 
-            height: 44px; 
+            width: 50px; 
+            height: 50px; 
             text-align: center; 
             vertical-align: middle;
-            font-size: 16px; 
+            font-size: 18px; 
             transition: background 0.3s, transform 0.2s;
         }
         td:not(.sum-cell):hover {
@@ -51,7 +46,7 @@
             z-index: 10;
             position: relative;
         }
-        .sum-cell { background-color: #eeeeee; color: #666; font-size: 14px; }
+        .sum-cell { background-color: #eeeeee; color: #666; font-size: 16px; }
         .corner-cell { font-weight: bold; color: #000; }
         button { 
             padding: 10px 20px; 
@@ -60,7 +55,6 @@
             border: 1px solid #888; 
             border-radius: 4px;
             font-size: 14px;
-            width: 100%;
         }
         button:hover { background-color: #fff; }
         @keyframes numberPop {
@@ -68,6 +62,15 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .animate-pop { animation: numberPop 0.3s ease-out; }
+
+        /* ── NUR MOBILE ── */
+        @media (max-width: 768px) {
+            body { height: auto; min-height: 100vh; align-items: flex-start; padding: 16px; box-sizing: border-box; }
+            .container { width: 100%; max-width: 340px; box-sizing: border-box; padding: 20px; }
+            table { width: 100%; }
+            td { width: auto; height: 42px; font-size: 15px; }
+            button { width: 100%; }
+        }
     </style>
 </head>
 <body>

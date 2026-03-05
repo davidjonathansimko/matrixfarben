@@ -37,7 +37,7 @@
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
             width: 100%;
-            max-width: 520px;
+            max-width: 600px;
             box-sizing: border-box;
         }
 
@@ -73,7 +73,8 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             transform-style: preserve-3d;
-            width: min(240px, 56vw);
+            width: 100%;
+            max-width: 280px;
         }
 
         .cell {
@@ -83,6 +84,7 @@
             border: 2px solid rgba(255,255,255,0.2);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 0;
         }
 
         .cell:hover {

@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber-Mainframe Hub</title>
     <style>
         :root {
@@ -37,6 +38,7 @@
         .mainframe {
             display: flex;
             height: 100vh;
+            height: 100dvh;
             border: 2px solid var(--neon);
             box-sizing: border-box;
             backdrop-filter: blur(5px);
@@ -46,11 +48,14 @@
         .sidebar {
             width: 300px;
             border-right: 2px solid var(--neon);
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.92);
             display: flex;
             flex-direction: column;
             padding: 20px;
-            z-index: 10;
+            z-index: 100;
+            box-sizing: border-box;
+            overflow-y: auto;
+            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
         }
 
         .sidebar h2 {
@@ -72,7 +77,7 @@
             overflow: hidden;
         }
 
-        .menu-item:hover {
+        .menu-item:hover, .menu-item:active {
             background: var(--neon);
             color: black;
             box-shadow: 0 0 20px var(--neon);
@@ -84,6 +89,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         iframe {
@@ -99,8 +105,11 @@
             border-bottom: 1px solid var(--neon);
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 12px;
             background: rgba(0,0,0,0.5);
+            gap: 8px;
+            box-sizing: border-box;
         }
 
         .status-online { color: var(--neon); animation: blink 1s infinite; }
@@ -112,6 +121,127 @@
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
+            padding: 20px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        /* ── HAMBURGER BUTTON ── */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border: 1px solid var(--neon);
+            background: rgba(0,0,0,0.8);
+            box-sizing: border-box;
+            flex-shrink: 0;
+            z-index: 300;
+            padding: 7px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .hamburger:hover {
+            background: rgba(0,255,65,0.12);
+            box-shadow: 0 0 12px rgba(0,255,65,0.4);
+        }
+        .hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--neon);
+            box-shadow: 0 0 6px var(--neon);
+            border-radius: 2px;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* Dark overlay behind sidebar on mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 99;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.active { display: block; }
+
+        /* Swipe hint text at bottom of sidebar (mobile only) */
+        .sidebar-close-hint {
+            display: none;
+        }
+
+        /* ── MOBILE RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .mainframe {
+                flex-direction: column;
+                border: none;
+                height: 100dvh;
+            }
+
+            /* Sidebar als Drawer von links */
+            .sidebar {
+                position: fixed;
+                top: 0; left: 0;
+                width: 82%;
+                max-width: 320px;
+                height: 100%;
+                transform: translateX(-110%);
+                border-right: 2px solid var(--neon);
+                box-shadow: 6px 0 40px rgba(0,255,65,0.25);
+                z-index: 200;
+                padding: 20px 16px 16px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .hamburger { display: flex; }
+
+            .top-bar {
+                padding: 10px 12px;
+                font-size: 11px;
+                flex-wrap: nowrap;
+            }
+
+            #current-project {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex: 1;
+                text-align: center;
+                font-size: 10px;
+            }
+
+            #clock { flex-shrink: 0; }
+
+            #welcome-msg h1 { font-size: 20px; }
+            #welcome-msg p  { font-size: 13px; }
+
+            .menu-item {
+                padding: 13px 12px;
+                font-size: 13px;
+                margin: 7px 0;
+            }
+
+            .sidebar h2 { font-size: 15px; }
+
+            .sidebar-close-hint {
+                display: block;
+                margin-top: auto;
+                padding-top: 14px;
+                color: rgba(0,255,65,0.45);
+                font-size: 11px;
+                text-align: center;
+                border-top: 1px solid rgba(0,255,65,0.2);
+            }
         }
     </style>
 </head>
@@ -119,9 +249,12 @@
 
     <div class="background-grid"></div>
 
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <div class="mainframe">
         <!-- Seitenmenü -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <h2 id="header-text">SYSTEM_MENU</h2>
             
             <div class="menu-item" onclick="loadProject('matrix.html', 'MATRIX_DECODER')">
@@ -133,42 +266,49 @@
             </div>
 
             <div class="menu-item" onclick="loadProject('matrix-dynamisch2-ascii.html', 'MATRIX_DECODER_ASCII')">
-                [02] MATRIX_DYNAMISCH_ASCII
+                [03] MATRIX_DYNAMISCH_ASCII
             </div>
 
             <div class="menu-item" onclick="loadProject('matrix-hacker-dynamisch.html', 'MATRIX_HACKER_DYNAMISCH')">
-                [02] MATRIX_HACKER_DYNAMISCH
+                [04] MATRIX_HACKER_DYNAMISCH
             </div>
 
             <div class="menu-item" onclick="loadProject('farben.html', 'NEON_COLOR_LAB')">
-                [02] FARBSPIEL
+                [05] FARBSPIEL
             </div>
 
             <div class="menu-item" onclick="loadProject('farben-dynamisch.html', 'FARBSPIEL_DYNAMISCH')">
-                [02] FARBSPIEL_DYNAMISCH
+                [06] FARBSPIEL_DYNAMISCH
             </div>
 
             <div class="menu-item" onclick="loadProject('farben-dynamisch2-ascii.html', 'FARBSPIEL_DYNAMISCH_ASCII')">
-                [02] FARBSPIEL_DYNAMISCH_ASCII
+                [07] FARBSPIEL_DYNAMISCH_ASCII
             </div>
 
             <div class="menu-item" onclick="loadProject('farben-neon-dynamsich.html', 'FARBSPIEL_NEON_DYNAMISCH')">
-                [02] FARBSPIEL_NEON_DYNAMISCH
+                [08] FARBSPIEL_NEON_DYNAMISCH
             </div>
 
-            
-
-            <div style="margin-top: auto;">
+            <div style="margin-top: auto; padding-top: 10px;">
                 <div class="menu-item" onclick="window.location.reload()">
                     [R] REBOOT_SYSTEM
                 </div>
             </div>
+
+            <div class="sidebar-close-hint">&#9664; swipe left to close</div>
         </div>
 
         <!-- Hauptinhalt -->
         <div class="content">
             <div class="top-bar">
-                <div>CORE_STATUS: <span class="status-online">ONLINE</span></div>
+                <!-- Hamburger (nur mobile sichtbar) -->
+                <button class="hamburger" id="hamburger-btn" aria-label="Menu" onclick="toggleSidebar()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <div><span class="status-text">CORE_STATUS: </span><span class="status-online">ONLINE</span></div>
                 <div id="current-project">NO_PROJECT_LOADED</div>
                 <div id="clock">00:00:00</div>
             </div>
@@ -203,7 +343,6 @@
                         return symbols[Math.floor(Math.random() * symbols.length)];
                     })
                     .join("");
-                
                 if(iterations >= finalWord.length) clearInterval(interval);
                 iterations += 1/3;
             }, 30);
@@ -213,22 +352,52 @@
         function loadProject(fileName, title) {
             const frame = document.getElementById('project-frame');
             const welcome = document.getElementById('welcome-msg');
-            const statusText = document.getElementById('current-project');
 
-            // 1. Willkommensnachricht verstecken
             welcome.style.display = 'none';
-            
-            // 2. iFrame anzeigen und Datei laden
             frame.style.display = 'block';
             frame.src = fileName;
 
-            // 3. Animationen starten
             scrambleText('current-project', `LOADING: ${title}...`);
             scrambleText('header-text', title);
+
+            // Auf Mobile Sidebar schließen nach Auswahl
+            closeSidebar();
         }
+
+        // Hamburger Menu Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const btn = document.getElementById('hamburger-btn');
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen) {
+                closeSidebar();
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                btn.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const btn = document.getElementById('hamburger-btn');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            btn.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Close sidebar with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeSidebar();
+        });
 
         // Initiale Animation
         scrambleText('scramble-title', 'WILLKOMMEN OPERATOR');
+        updateClock();
     </script>
 </body>
 </html>

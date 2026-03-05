@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Summen</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; padding-top: 50px; }
+        .container { background-color: #dcdcdc; padding: 20px; border: 1px solid #aaa; width: fit-content; text-align: center; }
+        h3 { margin-top: 0; text-align: left; color: #333; }
+        
+        table { border-collapse: collapse; margin: 0 auto 20px auto; background: white; }
+        td { border: 1px solid #999; width: 45px; height: 45px; text-align: center; font-size: 18px; }
+
+        /* Die Summen-Zellen (rechts und unten) bekommen ein anderes Design */
+        .sum-cell { background-color: #eeeeee; border: none; font-size: 16px; color: #444; }
+        .corner-sum { color: #222; font-weight: bold; }
+
+        /* Abstandshalter-Effekt wie im Bild */
+        .spacer-row { height: 10px; border: none; background-color: #dcdcdc; }
+        .spacer-col { width: 10px; border: none; background-color: #dcdcdc; }
+
+        button { padding: 8px 15px; cursor: pointer; background-color: #eee; border: 1px solid #888; border-radius: 3px; }
+        button:hover { background-color: #ddd; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3 style="text-align:center">Summen</h3>
+    <table id="matrixTable">
+        <!-- 4 Zeilen für Daten + 1 Zeile für Spaltensummen -->
+        <!-- Jede Zeile hat 4 Zellen für Daten + 1 Zelle für Zeilensumme -->
+    </table>
+    <button onclick="generateValues()">Neue Werte generieren</button>
+</div>
+
+<script>
+    const size = 4;
+    const table = document.getElementById('matrixTable');
+
+    // Erstellt das Tabellen-Gitter beim Laden
+    function buildTable() {
+        let html = '';
+        for (let r = 0; r <= size; r++) {
+            html += '<tr>';
+            for (let c = 0; c <= size; c++) {
+                let id = `cell-${r}-${c}`;
+                // CSS Klassen zuweisen
+                let className = "";
+                if (r === size || c === size) className = "sum-cell";
+                if (r === size && c === size) className = "sum-cell corner-sum";
+
+                html += `<td id="${id}" class="${className}">0</td>`;
+            }
+            html += '</tr>';
+        }
+        table.innerHTML = html;
+    }
+
+    function generateValues() {
+        let values = [];
+
+        // 1. Zufallswerte (0-9) in die 4x4 Matrix schreiben
+        for (let r = 0; r < size; r++) {
+            values[r] = [];
+            for (let c = 0; c < size; c++) {
+                let num = Math.floor(Math.random() * 10);
+                values[r][c] = num;
+                document.getElementById(`cell-${r}-${c}`).innerText = num;
+                document.getElementById(`cell-${r}-${c}`).style.backgroundColor = "white";
+            }
+        }
+
+        // 2. Zeilensummen berechnen (rechte Spalte)
+        for (let r = 0; r < size; r++) {
+            let rowSum = values[r].reduce((a, b) => a + b, 0);
+            document.getElementById(`cell-${r}-${size}`).innerText = rowSum;
+        }
+
+        // 3. Spaltensummen berechnen (untere Zeile)
+        let colSums = new Array(size).fill(0);
+        for (let c = 0; c < size; c++) {
+            for (let r = 0; r < size; r++) {
+                colSums[c] += values[r][c];
+            }
+            document.getElementById(`cell-${size}-${c}`).innerText = colSums[c];
+        }
+
+        // 4. Diagonalsumme berechnen (unten rechts)
+        // Laut Aufgabe c: "Summe der Diagonalen" (meist ist die Hauptdiagonale gemeint)
+        let diagSum = 0;
+        for (let i = 0; i < size; i++) {
+            diagSum += values[i][i];
+        }
+        document.getElementById(`cell-${size}-${size}`).innerText = diagSum;
+    }
+
+    // Initialisierung
+    buildTable();
+</script>
+
+</body>
+</html>

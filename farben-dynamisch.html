@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Interaktives Farbspiel 3D</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            /* Wichtig für den 3D-Effekt */
+            perspective: 1000px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 50px;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px var(--shadow);
+            /* Ermöglicht 3D-Transformationen */
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Linke Seite: Steuerung */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transform: translateZ(30px); /* Schwebt leicht vor der Karte */
+        }
+
+        .controls label {
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        .controls label:hover { background: #f0f0f0; }
+
+        /* Mitte: Das Grid */
+        .grid-wrapper {
+            perspective: 1000px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 10px;
+            transform-style: preserve-3d;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Animation beim Hovern über ein einzelnes Quadrat */
+        .cell:hover {
+            transform: translateZ(50px) scale(1.2) rotate(5deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        /* Rechte Seite: Statistik */
+        .stats {
+            min-width: 150px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            border-left: 5px solid #ddd;
+            transform: translateZ(30px);
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.6;
+        }
+
+        /* Farbfelder */
+        .rot { background-color: #ff4d4d; }
+        .grün { background-color: #2ecc71; }
+        .blau { background-color: #3498db; }
+        .gelb { background-color: #f1c40f; }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-container" id="card">
+        <!-- Farbauswahl -->
+        <div class="controls">
+            <h3 style="margin-top:0">Farbe wählen</h3>
+            <label><input type="radio" name="colorPick" value="rot" checked> <span style="color:#ff4d4d">Rot</span></label>
+            <label><input type="radio" name="colorPick" value="grün"> <span style="color:#2ecc71">Grün</span></label>
+            <label><input type="radio" name="colorPick" value="blau"> <span style="color:#3498db">Blau</span></label>
+            <label><input type="radio" name="colorPick" value="gelb"> <span style="color:#f1c40f">Gelb</span></label>
+        </div>
+
+        <!-- Spielfeld -->
+        <div class="grid-wrapper">
+            <div class="grid" id="colorGrid"></div>
+        </div>
+
+        <!-- Anzeige -->
+        <div class="stats" id="statsDisplay">
+            Wird geladen...
+        </div>
+    </div>
+
+    <script>
+        const colors = ['rot', 'grün', 'blau', 'gelb'];
+        const grid = document.getElementById('colorGrid');
+        const card = document.getElementById('card');
+        const statsDisplay = document.getElementById('statsDisplay');
+
+        // --- 1. 3D CARD EFFEKT (Mausbewegung) ---
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left; // Mausposition im Element
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // Berechnung der Drehung (max 15 Grad)
+            const rotateX = (centerY - y) / 15;
+            const rotateY = (x - centerX) / 15;
+            
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        // Zurücksetzen wenn Maus das Feld verlässt
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        });
+
+
+        // --- 2. SPIELLOGIK ---
+        function initGame() {
+            for (let i = 0; i < 16; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                
+                // Zufällige Startfarbe
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                cell.classList.add(randomColor);
+                
+                // Klick-Logik
+                cell.addEventListener('click', function() {
+                    const selectedColor = document.querySelector('input[name="colorPick"]:checked').value;
+                    colors.forEach(c => cell.classList.remove(c));
+                    cell.classList.add(selectedColor);
+                    
+                    // Kleiner "Plopp" Effekt beim Klicken
+                    cell.style.transform = 'scale(0.8)';
+                    setTimeout(() => { cell.style.transform = ''; }, 100);
+                    
+                    updateStats();
+                });
+
+                grid.appendChild(cell);
+            }
+            updateStats();
+        }
+
+        function updateStats() {
+            let counts = { rot: 0, grün: 0, blau: 0, gelb: 0 };
+            document.querySelectorAll('.cell').forEach(cell => {
+                colors.forEach(c => {
+                    if (cell.classList.contains(c)) counts[c]++;
+                });
+            });
+
+            statsDisplay.innerHTML = `
+                <b>STATISTIK</b><hr>
+                ROT:   ${counts.rot}<br>
+                GRÜN:  ${counts.grün}<br>
+                BLAU:  ${counts.blau}<br>
+                GELB:  ${counts.gelb}
+            `;
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

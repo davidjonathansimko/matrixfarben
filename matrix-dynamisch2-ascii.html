@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Decoder - Summenrechner</title>
+    <style>
+        :root {
+            --matrix-green: #00ff41;
+            --bg-dark: #0a0a0a;
+            --cell-bg: #1a1a1a;
+            --text-main: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            perspective: 1200px;
+            overflow: hidden;
+        }
+
+        /* 3D-Container */
+        .container {
+            background: linear-gradient(145deg, #222, #111);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid #444;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            text-align: center;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: var(--matrix-green);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transform: translateZ(50px);
+            text-shadow: 0 0 10px var(--matrix-green);
+        }
+
+        /* Stabiles Gitter-Layout */
+        table {
+            border-collapse: separate;
+            border-spacing: 10px;
+            margin: 20px auto;
+            transform: translateZ(30px);
+        }
+
+        td {
+            width: 60px;
+            height: 60px;
+            background: var(--cell-bg);
+            border: 1px solid #333;
+            border-radius: 8px;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        /* Daten-Zellen Hover */
+        td:not(.sum-cell):hover {
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 15px var(--matrix-green);
+            transform: translateZ(20px) scale(1.1);
+        }
+
+        /* Summen-Zellen (Optik wie im Bild) */
+        .sum-cell {
+            background: #252525;
+            color: #888;
+            font-size: 18px;
+            border-color: #444;
+        }
+
+        .corner-cell {
+            color: var(--matrix-green);
+            border: 1px double var(--matrix-green);
+        }
+
+        /* Der Button */
+        button {
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: transparent;
+            color: var(--matrix-green);
+            border: 1px solid var(--matrix-green);
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            transform: translateZ(40px);
+        }
+
+        button:hover {
+            background: var(--matrix-green);
+            color: black;
+            box-shadow: 0 0 20px var(--matrix-green);
+        }
+
+        /* Animation für den "Decoding"-Look */
+        .decoding {
+            color: var(--matrix-green);
+            text-shadow: 0 0 8px var(--matrix-green);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="card">
+    <h3>Matrix System</h3>
+    <table id="matrixTable">
+        <!-- JS füllt die Tabelle -->
+    </table>
+    <button onclick="runMatrixEffect()">Werte entschlüsseln</button>
+</div>
+
+<script>
+    const size = 4;
+    const table = document.getElementById('matrixTable');
+    const card = document.getElementById('card');
+
+    // 1. 3D-Effekt
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const rX = (rect.height / 2 - y) / 15;
+        const rY = (x - rect.width / 2) / 15;
+        card.style.transform = `rotateX(${rX}deg) rotateY(${rY}deg)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+
+    // 2. Tabelle initialisieren
+    function init() {
+        let html = '';
+        for (let r = 0; r <= size; r++) {
+            html += '<tr>';
+            for (let c = 0; c <= size; c++) {
+                let classes = (r === size || c === size) ? 'sum-cell' : '';
+                if (r === size && c === size) classes += ' corner-cell';
+                html += `<td id="cell-${r}-${c}" class="${classes}">?</td>`;
+            }
+            html += '</tr>';
+        }
+        table.innerHTML = html;
+    }
+
+    // 3. Der Scramble-Effekt (ASCII / Binär Animation)
+    function scrambleCell(id, finalValue) {
+        const el = document.getElementById(id);
+        const chars = "01X$#@&?%/";
+        let iterations = 0;
+        const maxIterations = 10 + Math.random() * 15; // Zufällige Dauer pro Zelle
+
+        el.classList.add('decoding');
+
+        const interval = setInterval(() => {
+            // Zeige zufälliges Zeichen aus dem String
+            el.innerText = chars[Math.floor(Math.random() * chars.length)];
+            
+            if (iterations >= maxIterations) {
+                clearInterval(interval);
+                el.innerText = finalValue;
+                el.classList.remove('decoding');
+            }
+            iterations++;
+        }, 50);
+    }
+
+    // 4. Hauptfunktion
+    function runMatrixEffect() {
+        let matrix = [];
+        
+        // Zufallswerte berechnen
+        for (let r = 0; r < size; r++) {
+            matrix[r] = [];
+            for (let c = 0; c < size; c++) {
+                matrix[r][c] = Math.floor(Math.random() * 10);
+                scrambleCell(`cell-${r}-${c}`, matrix[r][c]);
+            }
+        }
+
+        // Zeilensummen
+        for (let r = 0; r < size; r++) {
+            let s = matrix[r].reduce((a, b) => a + b, 0);
+            setTimeout(() => scrambleCell(`cell-${r}-${size}`, s), 500);
+        }
+
+        // Spaltensummen
+        for (let c = 0; c < size; c++) {
+            let s = 0;
+            for (let r = 0; r < size; r++) s += matrix[r][c];
+            setTimeout(() => scrambleCell(`cell-${size}-${c}`, s), 700);
+        }
+
+        // Diagonale
+        let diag = 0;
+        for (let i = 0; i < size; i++) diag += matrix[i][i];
+        setTimeout(() => scrambleCell(`cell-${size}-${size}`, diag), 900);
+    }
+
+    init();
+</script>
+
+</body>
+</html>

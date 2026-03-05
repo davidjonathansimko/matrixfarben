@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Neon Color Dashboard</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            perspective: 1000px;
+        }
+        .ui-frame {
+            background: rgba(20, 20, 25, 0.9);
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid #333;
+            display: flex;
+            gap: 50px;
+            box-shadow: 0 0 100px rgba(0,0,0,1);
+            transform-style: preserve-3d;
+            transition: 0.1s;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            gap: 15px;
+        }
+        .pixel {
+            width: 70px; height: 70px;
+            background: #111;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: center;
+            font-family: monospace; font-size: 10px; color: rgba(255,255,255,0.2);
+        }
+        .pixel:hover { transform: translateZ(60px) rotate(10deg); filter: brightness(1.5); }
+
+        /* Farben mit Glow */
+        .rot { background: #ff0055; box-shadow: 0 0 20px #ff0055; }
+        .grün { background: #00ff88; box-shadow: 0 0 20px #00ff88; }
+        .blau { background: #0066ff; box-shadow: 0 0 20px #0066ff; }
+        .gelb { background: #ffcc00; box-shadow: 0 0 20px #ffcc00; }
+
+        .stats-box {
+            background: rgba(255,255,255,0.03);
+            padding: 25px;
+            border-radius: 20px;
+            min-width: 200px;
+        }
+        .stat-bar-bg {
+            height: 8px; background: #222; border-radius: 4px; margin-top: 5px; overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%; width: 0%; transition: 1s ease-out;
+        }
+
+        /* Radio Buttons verstecken und stylen */
+        .color-selector input { display: none; }
+        .color-selector label {
+            display: block; padding: 10px; margin: 10px 0;
+            border-radius: 10px; cursor: pointer; border: 1px solid #333;
+            transition: 0.3s;
+        }
+        input:checked + span { font-weight: bold; text-shadow: 0 0 10px white; }
+    </style>
+</head>
+<body>
+
+<div class="ui-frame" id="frame">
+    <div class="color-selector">
+        <h3 style="color:#555">SELECT_UNIT</h3>
+        <label><input type="radio" name="c" value="rot" checked> <span style="color:#ff0055">■ THERMAL</span></label>
+        <label><input type="radio" name="c" value="grün"> <span style="color:#00ff88">■ BIO-GEN</span></label>
+        <label><input type="radio" name="c" value="blau"> <span style="color:#0066ff">■ PLASMA</span></label>
+        <label><input type="radio" name="c" value="gelb"> <span style="color:#ffcc00">■ KINETIC</span></label>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="stats-box">
+        <h3 style="color:#555">LIVE_DATA</h3>
+        <div id="stat-ui"></div>
+    </div>
+</div>
+
+<script>
+    const colors = ['rot', 'grün', 'blau', 'gelb'];
+    const chars = "!?X01";
+
+    function updateUI() {
+        let counts = { rot:0, grün:0, blau:0, gelb:0 };
+        document.querySelectorAll('.pixel').forEach(p => {
+            colors.forEach(c => { if(p.classList.contains(c)) counts[c]++; });
+        });
+
+        let html = '';
+        for(let c in counts) {
+            let percent = (counts[c] / 16) * 100;
+            let hex = {rot:'#ff0055', grün:'#00ff88', blau:'#0066ff', gelb:'#ffcc00'}[c];
+            html += `<div style="margin-bottom:15px">
+                <small>${c.toUpperCase()}: ${counts[c]}</small>
+                <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${percent}%; background:${hex}"></div></div>
+            </div>`;
+        }
+        document.getElementById('stat-ui').innerHTML = html;
+    }
+
+    function scramblePixel(el, finalColor) {
+        let i = 0;
+        const interval = setInterval(() => {
+            colors.forEach(c => el.classList.remove(c));
+            el.classList.add(colors[Math.floor(Math.random()*4)]);
+            el.innerText = chars[Math.floor(Math.random()*chars.length)];
+            if(i++ > 10) {
+                clearInterval(interval);
+                colors.forEach(c => el.classList.remove(c));
+                el.classList.add(finalColor);
+                el.innerText = "";
+                updateUI();
+            }
+        }, 50);
+    }
+
+    const grid = document.getElementById('grid');
+    for(let i=0; i<16; i++) {
+        let p = document.createElement('div');
+        p.className = 'pixel';
+        p.onclick = () => {
+            let sel = document.querySelector('input[name="c"]:checked').value;
+            scramblePixel(p, sel);
+        };
+        grid.appendChild(p);
+        setTimeout(() => scramblePixel(p, colors[Math.floor(Math.random()*4)]), i*50);
+    }
+
+    const frame = document.getElementById('frame');
+    document.addEventListener('mousemove', e => {
+        let x = (window.innerWidth / 2 - e.pageX) / 30;
+        let y = (window.innerHeight / 2 - e.pageY) / 30;
+        frame.style.transform = `rotateX(${y}deg) rotateY(${-x}deg)`;
+    });
+</script>
+</body>
+</html>

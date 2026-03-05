@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyber Farbspiel 3000</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: rgba(20, 20, 20, 0.8);
+            --neon-red: #ff3131;
+            --neon-green: #39ff14;
+            --neon-blue: #00d4ff;
+            --neon-yellow: #faff00;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            perspective: 1500px;
+            overflow: hidden;
+        }
+
+        /* Die 3D-Glaskarte */
+        .cyber-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(255,255,255,0.05);
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Radio Buttons als Neon-Auswahl */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transform: translateZ(40px);
+        }
+
+        .controls label {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid transparent;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls label:hover { background: rgba(255,255,255,0.05); }
+
+        /* Das Spielfeld */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 65px);
+            gap: 12px;
+            transform-style: preserve-3d;
+            transform: translateZ(20px);
+        }
+
+        .cell {
+            width: 65px;
+            height: 65px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: rgba(255,255,255,0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            background: #111;
+        }
+
+        .cell:hover {
+            transform: translateZ(50px) scale(1.15) rotate(5deg);
+            z-index: 100;
+        }
+
+        /* Neon-Farben */
+        .rot { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); color: #000; }
+        .grün { background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); color: #000; }
+        .blau { background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); color: #000; }
+        .gelb { background: var(--neon-yellow); box-shadow: 0 0 15px var(--neon-yellow); color: #000; }
+
+        /* Statistik-Bereich */
+        .stats-panel {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            min-width: 160px;
+            transform: translateZ(40px);
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .stats-panel h4 { margin: 0 0 10px 0; color: #555; text-transform: uppercase; }
+
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
+        /* Animation für den Glitch-Effekt */
+        @keyframes glitch {
+            0% { transform: scale(1); filter: hue-rotate(0deg); }
+            50% { transform: scale(0.9); filter: hue-rotate(90deg); }
+            100% { transform: scale(1); filter: hue-rotate(0deg); }
+        }
+        .anim-glitch { animation: glitch 0.2s ease; }
+
+    </style>
+</head>
+<body>
+
+    <div class="cyber-card" id="card">
+        <!-- Auswahl -->
+        <div class="controls">
+            <h3 style="color: #444; margin:0">SOURCE</h3>
+            <label><input type="radio" name="colorPick" value="rot" checked> <span style="color:var(--neon-red)">RED</span></label>
+            <label><input type="radio" name="colorPick" value="grün"> <span style="color:var(--neon-green)">GREEN</span></label>
+            <label><input type="radio" name="colorPick" value="blau"> <span style="color:var(--neon-blue)">BLUE</span></label>
+            <label><input type="radio" name="colorPick" value="gelb"> <span style="color:var(--neon-yellow)">GOLD</span></label>
+        </div>
+
+        <!-- Grid -->
+        <div class="grid" id="colorGrid"></div>
+
+        <!-- Stats -->
+        <div class="stats-panel" id="statsDisplay">
+            <h4>ANALYZING...</h4>
+            <div id="stat-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const colors = ['rot', 'grün', 'blau', 'gelb'];
+        const symbols = ["1", "0", "X", "#", "{", "}", "[", "]", "§"];
+        const grid = document.getElementById('colorGrid');
+        const card = document.getElementById('card');
+
+        // 1. 3D Tilt
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const rotateX = (rect.height / 2 - (e.clientY - rect.top)) / 15;
+            const rotateY = ((e.clientX - rect.left) - rect.width / 2) / 15;
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        });
+
+        // 2. Scramble Animation Funktion
+        function scrambleCell(cell, finalColor) {
+            let steps = 0;
+            const maxSteps = 8 + Math.random() * 10;
+            
+            cell.classList.add('anim-glitch');
+
+            const interval = setInterval(() => {
+                // Zufällige Farbe und Zeichen während des "Scans"
+                colors.forEach(c => cell.classList.remove(c));
+                cell.classList.add(colors[Math.floor(Math.random() * colors.length)]);
+                cell.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+
+                if (steps >= maxSteps) {
+                    clearInterval(interval);
+                    colors.forEach(c => cell.classList.remove(c));
+                    cell.classList.add(finalColor);
+                    cell.innerText = ""; // Fertig
+                    cell.classList.remove('anim-glitch');
+                    updateStats();
+                }
+                steps++;
+            }, 40);
+        }
+
+        // 3. Spiel Starten
+        function init() {
+            for (let i = 0; i < 16; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                grid.appendChild(cell);
+                
+                // Start-Scramble
+                setTimeout(() => {
+                    const startCol = colors[Math.floor(Math.random() * colors.length)];
+                    scrambleCell(cell, startCol);
+                }, i * 30); // Stagger-Effekt beim Laden
+
+                // Klick-Effekt
+                cell.addEventListener('click', () => {
+                    const chosen = document.querySelector('input[name="colorPick"]:checked').value;
+                    scrambleCell(cell, chosen);
+                });
+            }
+        }
+
+        // 4. Statistik
+        function updateStats() {
+            const counts = { rot: 0, grün: 0, blau: 0, gelb: 0 };
+            document.querySelectorAll('.cell').forEach(c => {
+                colors.forEach(col => { if(c.classList.contains(col)) counts[col]++; });
+            });
+
+            document.getElementById('stat-content').innerHTML = `
+                <div class="stat-row"><span>RED</span> <span>${counts.rot}</span></div>
+                <div class="stat-row"><span>GREEN</span> <span>${counts.grün}</span></div>
+                <div class="stat-row"><span>BLUE</span> <span>${counts.blau}</span></div>
+                <div class="stat-row"><span>GOLD</span> <span>${counts.gelb}</span></div>
+                <hr style="border:0; border-top:1px solid #333; margin: 10px 0">
+                <div class="stat-row" style="color:var(--neon-green)"><span>TOTAL</span> <span>16</span></div>
+            `;
+        }
+
+        init();
+    </script>
+</body>
+</html>

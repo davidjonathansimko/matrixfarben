@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Farbspiel</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .container { display: flex; gap: 40px; align-items: flex-start; }
+        .grid { display: grid; grid-template-columns: repeat(4, 50px); gap: 2px; }
+        .cell { width: 50px; height: 50px; border: 1px solid #999; cursor: pointer; }
+        .controls { display: flex; flex-direction: column; gap: 10px; }
+        .stats { font-family: monospace; }
+        /* Farben definieren */
+        .rot { background-color: #cc3333; }
+        .grün { background-color: #228b22; }
+        .blau { background-color: #3333cc; }
+        .gelb { background-color: #ffcc00; }
+    </style>
+</head>
+<body>
+
+    <h2 >Farbspiel</h2>
+    <div class="container">
+        <!-- Farbauswahl -->
+        <div class="controls">
+            <label><input type="radio" name="colorPick" value="rot" checked> Rot</label>
+            <label><input type="radio" name="colorPick" value="grün"> Grün</label>
+            <label><input type="radio" name="colorPick" value="blau"> Blau</label>
+            <label><input type="radio" name="colorPick" value="gelb"> Gelb</label>
+        </div>
+
+        <!-- Das Spielfeld -->
+        <div class="grid" id="colorGrid"></div>
+
+        <!-- Statistik -->
+        <div class="stats" id="statsDisplay">
+            Anzahl rot: 0<br>
+            Anzahl grün: 0<br>
+            Anzahl blau: 0<br>
+            Anzahl gelb: 0
+        </div>
+    </div>
+
+    <script>
+        const colors = ['rot', 'grün', 'blau', 'gelb'];
+        const grid = document.getElementById('colorGrid');
+        const statsDisplay = document.getElementById('statsDisplay');
+
+        // Initialisierung des Feldes
+        function initGame() {
+            for (let i = 0; i < 16; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                // Zufällige Startfarbe
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                cell.classList.add(randomColor);
+                
+                // Klick-Event zum Umfärben
+                cell.addEventListener('click', function() {
+                    const selectedColor = document.querySelector('input[name="colorPick"]:checked').value;
+                    // Alle alten Farbklassen entfernen
+                    colors.forEach(c => cell.classList.remove(c));
+                    // Neue Farbe setzen
+                    cell.classList.add(selectedColor);
+                    updateStats();
+                });
+
+                grid.appendChild(cell);
+            }
+            updateStats();
+        }
+
+        // Zählt die Farben und aktualisiert den Text
+        function updateStats() {
+            let counts = { rot: 0, grün: 0, blau: 0, gelb: 0 };
+            document.querySelectorAll('.cell').forEach(cell => {
+                colors.forEach(c => {
+                    if (cell.classList.contains(c)) counts[c]++;
+                });
+            });
+
+            statsDisplay.innerHTML = `
+                Anzahl rot: ${counts.rot}<br>
+                Anzahl grün: ${counts.grün}<br>
+                Anzahl blau: ${counts.blau}<br>
+                Anzahl gelb: ${counts.gelb}
+            `;
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

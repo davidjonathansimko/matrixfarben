@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyber-Mainframe Hub</title>
+    <style>
+        :root {
+            --neon: #00ff41;
+            --bg: #050505;
+            --glass: rgba(0, 255, 65, 0.1);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            height: 100%; width: 100%;
+            background-color: var(--bg);
+            color: var(--neon);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        /* Hintergrund-Grid Animation */
+        .background-grid {
+            position: fixed;
+            top: 0; left: 0; width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg);
+            animation: moveGrid 20s linear infinite;
+            z-index: -1;
+        }
+        @keyframes moveGrid { 0% { transform: perspective(500px) rotateX(60deg) translateY(0); } 100% { transform: perspective(500px) rotateX(60deg) translateY(50px); } }
+
+        /* Das Haupt-Interface */
+        .mainframe {
+            display: flex;
+            height: 100vh;
+            border: 2px solid var(--neon);
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Sidebar Menü */
+        .sidebar {
+            width: 300px;
+            border-right: 2px solid var(--neon);
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            border-bottom: 1px solid var(--neon);
+            padding-bottom: 10px;
+            text-shadow: 0 0 10px var(--neon);
+        }
+
+        .menu-item {
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid var(--neon);
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:hover {
+            background: var(--neon);
+            color: black;
+            box-shadow: 0 0 20px var(--neon);
+        }
+
+        /* Der Anzeige-Bereich */
+        .content {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        iframe {
+            width: 100%;
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--neon);
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .status-online { color: var(--neon); animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Startbildschirm Info */
+        #welcome-msg {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-grid"></div>
+
+    <div class="mainframe">
+        <!-- Seitenmenü -->
+        <div class="sidebar">
+            <h2 id="header-text">SYSTEM_MENU</h2>
+            
+            <div class="menu-item" onclick="loadProject('matrix.html', 'MATRIX_DECODER')">
+                [01] MATRIX_RECHNER
+            </div>
+            
+            <div class="menu-item" onclick="loadProject('matrix-dynamisch.html', 'MATRIX_DYNAMISCH')">
+                [02] MATRIX_DYNAMISCH
+            </div>
+
+            <div class="menu-item" onclick="loadProject('matrix-dynamisch2-ascii.html', 'MATRIX_DECODER_ASCII')">
+                [02] MATRIX_DYNAMISCH_ASCII
+            </div>
+
+            <div class="menu-item" onclick="loadProject('matrix-hacker-dynamisch.html', 'MATRIX_HACKER_DYNAMISCH')">
+                [02] MATRIX_HACKER_DYNAMISCH
+            </div>
+
+            <div class="menu-item" onclick="loadProject('farben.html', 'NEON_COLOR_LAB')">
+                [02] FARBSPIEL
+            </div>
+
+            <div class="menu-item" onclick="loadProject('farben-dynamisch.html', 'FARBSPIEL_DYNAMISCH')">
+                [02] FARBSPIEL_DYNAMISCH
+            </div>
+
+            <div class="menu-item" onclick="loadProject('farben-dynamisch2-ascii.html', 'FARBSPIEL_DYNAMISCH_ASCII')">
+                [02] FARBSPIEL_DYNAMISCH_ASCII
+            </div>
+
+            <div class="menu-item" onclick="loadProject('farben-neon-dynamsich.html', 'FARBSPIEL_NEON_DYNAMISCH')">
+                [02] FARBSPIEL_NEON_DYNAMISCH
+            </div>
+
+            
+
+            <div style="margin-top: auto;">
+                <div class="menu-item" onclick="window.location.reload()">
+                    [R] REBOOT_SYSTEM
+                </div>
+            </div>
+        </div>
+
+        <!-- Hauptinhalt -->
+        <div class="content">
+            <div class="top-bar">
+                <div>CORE_STATUS: <span class="status-online">ONLINE</span></div>
+                <div id="current-project">NO_PROJECT_LOADED</div>
+                <div id="clock">00:00:00</div>
+            </div>
+
+            <div id="welcome-msg">
+                <h1 id="scramble-title">WILLKOMMEN OPERATOR</h1>
+                <p>Bitte wählen Sie ein Modul aus dem Seitenmenü.</p>
+            </div>
+
+            <iframe id="project-frame" src="about:blank" style="display:none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const symbols = "01$#@&%?!§/X<>{}[]";
+
+        // Uhrzeit-Update
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+
+        // ASCII Scramble Effekt für Texte
+        function scrambleText(elementId, finalWord) {
+            const el = document.getElementById(elementId);
+            let iterations = 0;
+            const interval = setInterval(() => {
+                el.innerText = finalWord.split("")
+                    .map((char, index) => {
+                        if(index < iterations) return finalWord[index];
+                        return symbols[Math.floor(Math.random() * symbols.length)];
+                    })
+                    .join("");
+                
+                if(iterations >= finalWord.length) clearInterval(interval);
+                iterations += 1/3;
+            }, 30);
+        }
+
+        // Projekt laden Funktion
+        function loadProject(fileName, title) {
+            const frame = document.getElementById('project-frame');
+            const welcome = document.getElementById('welcome-msg');
+            const statusText = document.getElementById('current-project');
+
+            // 1. Willkommensnachricht verstecken
+            welcome.style.display = 'none';
+            
+            // 2. iFrame anzeigen und Datei laden
+            frame.style.display = 'block';
+            frame.src = fileName;
+
+            // 3. Animationen starten
+            scrambleText('current-project', `LOADING: ${title}...`);
+            scrambleText('header-text', title);
+        }
+
+        // Initiale Animation
+        scrambleText('scramble-title', 'WILLKOMMEN OPERATOR');
+    </script>
+</body>
+</html>

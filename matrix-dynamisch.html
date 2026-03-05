@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Summen - Dynamisch</title>
+    <style>
+        /* Grundstyling wie im Originalbild */
+        body { 
+            font-family: sans-serif; 
+            background-color: #f0f0f0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            perspective: 1000px; /* Ermöglicht 3D-Effekt */
+        }
+
+        .container { 
+            background-color: #dcdcdc; 
+            padding: 30px; 
+            border: 1px solid #aaa; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.1s ease-out; /* Für flüssiges Neigen */
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        h3 { text-align: left; margin-top: 0; color: #444; }
+
+        /* Festes Tabellen-Layout, damit es ein Viereck bleibt */
+        table { 
+            border-collapse: collapse; 
+            margin: 20px auto; 
+            background: white;
+            table-layout: fixed; /* Verhindert das Verziehen */
+        }
+
+        td { 
+            border: 1px solid #999; 
+            width: 50px; 
+            height: 50px; 
+            text-align: center; 
+            vertical-align: middle;
+            font-size: 18px; 
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        /* Hover-Effekt für die inneren Felder */
+        td:not(.sum-cell):hover {
+            background-color: #e8f0fe;
+            transform: scale(1.05);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Summen-Felder grau wie im Bild */
+        .sum-cell { background-color: #eeeeee; color: #666; font-size: 16px; }
+        .corner-cell { font-weight: bold; color: #000; }
+
+        button { 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            background-color: #eee; 
+            border: 1px solid #888; 
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button:hover { background-color: #fff; }
+
+        /* Animation für die Zahlen beim Generieren */
+        @keyframes numberPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: numberPop 0.3s ease-out; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="matrixCard">
+    <h3>Summen</h3>
+    <table id="matrixTable">
+        <!-- Die Tabelle wird per JS aufgebaut -->
+    </table>
+    <button onclick="generateValues()">Neue Werte generieren</button>
+</div>
+
+<script>
+    const size = 4;
+    const container = document.getElementById('matrixCard');
+    const table = document.getElementById('matrixTable');
+
+    // 1. 3D-Tilt Effekt (Neigung bei Mausbewegung)
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const rotateX = (rect.height / 2 - y) / 10;
+        const rotateY = (x - rect.width / 2) / 10;
+        container.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+
+    container.addEventListener('mouseleave', () => {
+        container.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+
+    // 2. Tabelle initialisieren
+    function initTable() {
+        let html = '';
+        for (let r = 0; r <= size; r++) {
+            html += '<tr>';
+            for (let c = 0; c <= size; c++) {
+                let id = `c-${r}-${c}`;
+                let classes = (r === size || c === size) ? 'sum-cell' : '';
+                if (r === size && c === size) classes += ' corner-cell';
+                html += `<td id="${id}" class="${classes}">0</td>`;
+            }
+            html += '</tr>';
+        }
+        table.innerHTML = html;
+    }
+
+    // 3. Werte würfeln mit Animation
+    async function generateValues() {
+        let data = [];
+        
+        // Zufallszahlen in die 4x4 Matrix
+        for (let r = 0; r < size; r++) {
+            data[r] = [];
+            for (let c = 0; c < size; c++) {
+                let val = Math.floor(Math.random() * 10);
+                data[r][c] = val;
+                updateCell(`c-${r}-${c}`, val);
+                // Kleiner zeitlicher Versatz für "Wellen-Effekt"
+                await new Promise(res => setTimeout(res, 20));
+            }
+        }
+
+        // Zeilensummen (rechts)
+        for (let r = 0; r < size; r++) {
+            let sum = data[r].reduce((a, b) => a + b, 0);
+            updateCell(`c-${r}-${size}`, sum);
+        }
+
+        // Spaltensummen (unten)
+        for (let c = 0; c < size; c++) {
+            let sum = 0;
+            for (let r = 0; r < size; r++) sum += data[r][c];
+            updateCell(`c-${size}-${c}`, sum);
+        }
+
+        // Diagonalsumme (unten rechts)
+        let diag = 0;
+        for (let i = 0; i < size; i++) diag += data[i][i];
+        updateCell(`c-${size}-${size}`, diag);
+    }
+
+    // Hilfsfunktion für die Animation einer Zelle
+    function updateCell(id, val) {
+        const el = document.getElementById(id);
+        el.innerText = val;
+        el.classList.remove('animate-pop');
+        void el.offsetWidth; // Reset Animation
+        el.classList.add('animate-pop');
+    }
+
+    initTable();
+</script>
+
+</body>
+</html>

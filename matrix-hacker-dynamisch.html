@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Quantum Matrix Decoder</title>
+    <style>
+        :root {
+            --neon: #00ff41;
+            --bg: #050505;
+            --cell: #111;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--neon);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            perspective: 2000px;
+            overflow: hidden;
+        }
+        /* 3D Glas-Effekt */
+        .terminal {
+            background: rgba(0, 255, 65, 0.05);
+            padding: 40px;
+            border: 2px solid var(--neon);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.2), inset 0 0 20px rgba(0, 255, 65, 0.1);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            position: relative;
+        }
+        /* Scanline Animation */
+        .terminal::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: rgba(0, 255, 65, 0.3);
+            box-shadow: 0 0 20px var(--neon);
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+
+        table { border-collapse: separate; border-spacing: 12px; transform: translateZ(50px); }
+        td {
+            width: 60px; height: 60px;
+            background: var(--cell);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-shadow: 0 0 8px var(--neon);
+        }
+        /* Summen-Zellen Styling */
+        .sum-cell { color: #008f11; border-style: dashed; font-size: 18px; }
+        .corner { border: 2px double var(--neon); box-shadow: 0 0 15px var(--neon); }
+
+        button {
+            margin-top: 30px;
+            background: transparent;
+            color: var(--neon);
+            border: 2px solid var(--neon);
+            padding: 15px 30px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            transition: 0.3s;
+            transform: translateZ(80px);
+        }
+        button:hover { background: var(--neon); color: black; box-shadow: 0 0 30px var(--neon); }
+        
+        .glitch { animation: glitch-anim 0.2s infinite; }
+        @keyframes glitch-anim { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="terminal" id="board">
+    <h2 style="text-align: left; letter-spacing: 8px;">DECODING_MATRIX</h2>
+    <table id="matrixTable"></table>
+    <button onclick="masterControl()">Sytem Reboot</button>
+</div>
+
+<script>
+    const size = 4;
+    const symbols = "01$#@&%?!§/X<>{}[]";
+
+    function build() {
+        let h = '';
+        for(let r=0; r<=size; r++) {
+            h += '<tr>';
+            for(let c=0; c<=size; c++) {
+                let cl = (r==size || c==size) ? 'sum-cell' : '';
+                if(r==size && c==size) cl += ' corner';
+                h += `<td id="c-${r}-${c}" class="${cl}">--</td>`;
+            }
+            h += '</tr>';
+        }
+        document.getElementById('matrixTable').innerHTML = h;
+    }
+
+    // Die "Krasse" Scramble Animation
+    async function scramble(id, target) {
+        const el = document.getElementById(id);
+        let count = 0;
+        const max = 15 + Math.random() * 10;
+        el.classList.add('glitch');
+
+        return new Promise(resolve => {
+            const timer = setInterval(() => {
+                el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                if(count++ > max) {
+                    clearInterval(timer);
+                    el.innerText = target;
+                    el.classList.remove('glitch');
+                    resolve();
+                }
+            }, 40);
+        });
+    }
+
+    async function masterControl() {
+        let m = Array.from({length: 4}, () => []);
+        
+        // 1. Datenzellen befüllen
+        for(let r=0; r<4; r++) {
+            let rowPromises = [];
+            for(let c=0; c<4; c++) {
+                m[r][c] = Math.floor(Math.random() * 10);
+                rowPromises.push(scramble(`c-${r}-${c}`, m[r][c]));
+            }
+            await Promise.all(rowPromises); // Warten bis ganze Zeile steht
+        }
+
+        // 2. Summen (erst berechnen wenn Daten da sind)
+        for(let i=0; i<4; i++) {
+            let rs = m[i].reduce((a,b) => a+b, 0);
+            scramble(`c-${i}-4`, rs);
+            let cs = 0;
+            for(let j=0; j<4; j++) cs += m[j][i];
+            scramble(`c-4-${i}`, cs);
+        }
+
+        // Diagonale
+        let d = m[0][0] + m[1][1] + m[2][2] + m[3][3];
+        setTimeout(() => scramble('c-4-4', d), 500);
+    }
+
+    // 3D Tilt
+    const board = document.getElementById('board');
+    document.addEventListener('mousemove', e => {
+        let x = (window.innerWidth / 2 - e.pageX) / 25;
+        let y = (window.innerHeight / 2 - e.pageY) / 25;
+        board.style.transform = `rotateX(${y}deg) rotateY(${-x}deg)`;
+    });
+
+    build();
+</script>
+</body>
+</html>

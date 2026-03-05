@@ -2,62 +2,57 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matrix Summen - Dynamisch</title>
     <style>
-        /* Grundstyling wie im Originalbild */
         body { 
             font-family: sans-serif; 
             background-color: #f0f0f0; 
             display: flex; 
             justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
+            align-items: flex-start;
+            min-height: 100vh; 
             margin: 0;
-            perspective: 1000px; /* Ermöglicht 3D-Effekt */
+            padding: 20px;
+            box-sizing: border-box;
+            perspective: 1000px;
         }
-
         .container { 
             background-color: #dcdcdc; 
-            padding: 30px; 
+            padding: 20px; 
             border: 1px solid #aaa; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.1s ease-out; /* Für flüssiges Neigen */
+            transition: transform 0.1s ease-out;
             border-radius: 8px;
             text-align: center;
+            width: 100%;
+            max-width: 360px;
+            box-sizing: border-box;
         }
-
         h3 { text-align: left; margin-top: 0; color: #444; }
-
-        /* Festes Tabellen-Layout, damit es ein Viereck bleibt */
         table { 
             border-collapse: collapse; 
             margin: 20px auto; 
             background: white;
-            table-layout: fixed; /* Verhindert das Verziehen */
+            width: 100%;
+            table-layout: fixed;
         }
-
         td { 
             border: 1px solid #999; 
-            width: 50px; 
-            height: 50px; 
+            height: 44px; 
             text-align: center; 
             vertical-align: middle;
-            font-size: 18px; 
+            font-size: 16px; 
             transition: background 0.3s, transform 0.2s;
         }
-
-        /* Hover-Effekt für die inneren Felder */
         td:not(.sum-cell):hover {
             background-color: #e8f0fe;
             transform: scale(1.05);
             z-index: 10;
             position: relative;
         }
-
-        /* Summen-Felder grau wie im Bild */
-        .sum-cell { background-color: #eeeeee; color: #666; font-size: 16px; }
+        .sum-cell { background-color: #eeeeee; color: #666; font-size: 14px; }
         .corner-cell { font-weight: bold; color: #000; }
-
         button { 
             padding: 10px 20px; 
             cursor: pointer; 
@@ -65,10 +60,9 @@
             border: 1px solid #888; 
             border-radius: 4px;
             font-size: 14px;
+            width: 100%;
         }
         button:hover { background-color: #fff; }
-
-        /* Animation für die Zahlen beim Generieren */
         @keyframes numberPop {
             0% { transform: scale(0.5); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }

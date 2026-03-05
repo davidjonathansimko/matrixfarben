@@ -2,22 +2,27 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Farbspiel</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #0a0a0a; color: #ffffff; }
-        label { color: #ffffff; cursor: pointer; }
-        h2 { color: #ffffff; }
-        .stats { font-family: monospace; color: #ffffff; }
-        .container { display: flex; gap: 40px; align-items: flex-start; }
-        .grid { display: grid; grid-template-columns: repeat(4, 50px); gap: 2px; }
-        .cell { width: 50px; height: 50px; border: 1px solid #999; cursor: pointer; }
-        .controls { display: flex; flex-direction: column; gap: 10px; }
-        .stats { font-family: monospace; }
-        /* Farben definieren */
-        .rot { background-color: #cc3333; }
+        body { font-family: sans-serif; padding: 20px; background: #0a0a0a; color: #ffffff; margin: 0; box-sizing: border-box; }
+        label { color: #ffffff; cursor: pointer; font-size: 16px; }
+        h2 { color: #ffffff; margin-top: 0; }
+        .container { display: flex; gap: 30px; align-items: flex-start; flex-wrap: wrap; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; max-width: 260px; }
+        .cell { aspect-ratio: 1; border: 1px solid #999; cursor: pointer; border-radius: 6px; }
+        .controls { display: flex; flex-direction: column; gap: 12px; }
+        .stats { font-family: monospace; color: #ffffff; font-size: 14px; }
+        .rot  { background-color: #cc3333; }
         .grün { background-color: #228b22; }
         .blau { background-color: #3333cc; }
         .gelb { background-color: #ffcc00; }
+
+        @media (max-width: 500px) {
+            .container { flex-direction: column; gap: 16px; }
+            .controls { flex-direction: row; flex-wrap: wrap; gap: 10px; }
+            .grid { max-width: 100%; }
+        }
     </style>
 </head>
 <body>

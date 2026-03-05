@@ -2,24 +2,19 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matrix Summen</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; padding-top: 50px; }
-        .container { background-color: #dcdcdc; padding: 20px; border: 1px solid #aaa; width: fit-content; text-align: center; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; padding: 20px; margin: 0; box-sizing: border-box; min-height: 100vh; align-items: flex-start; }
+        .container { background-color: #dcdcdc; padding: 20px; border: 1px solid #aaa; width: 100%; max-width: 360px; text-align: center; box-sizing: border-box; }
         h3 { margin-top: 0; text-align: left; color: #333; }
-        
-        table { border-collapse: collapse; margin: 0 auto 20px auto; background: white; }
-        td { border: 1px solid #999; width: 45px; height: 45px; text-align: center; font-size: 18px; }
-
-        /* Die Summen-Zellen (rechts und unten) bekommen ein anderes Design */
-        .sum-cell { background-color: #eeeeee; border: none; font-size: 16px; color: #444; }
+        table { border-collapse: collapse; margin: 0 auto 20px auto; background: white; width: 100%; }
+        td { border: 1px solid #999; width: 18%; height: 44px; text-align: center; font-size: 16px; }
+        .sum-cell { background-color: #eeeeee; border: none; font-size: 14px; color: #444; }
         .corner-sum { color: #222; font-weight: bold; }
-
-        /* Abstandshalter-Effekt wie im Bild */
         .spacer-row { height: 10px; border: none; background-color: #dcdcdc; }
         .spacer-col { width: 10px; border: none; background-color: #dcdcdc; }
-
-        button { padding: 8px 15px; cursor: pointer; background-color: #eee; border: 1px solid #888; border-radius: 3px; }
+        button { padding: 8px 15px; cursor: pointer; background-color: #eee; border: 1px solid #888; border-radius: 3px; width: 100%; font-size: 15px; }
         button:hover { background-color: #ddd; }
     </style>
 </head>

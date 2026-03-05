@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum Matrix Decoder</title>
     <style>
         :root {
@@ -15,22 +16,27 @@
             font-family: 'Courier New', monospace;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
             perspective: 2000px;
-            overflow: hidden;
         }
         /* 3D Glas-Effekt */
         .terminal {
             background: rgba(0, 255, 65, 0.05);
-            padding: 40px;
+            padding: 24px;
             border: 2px solid var(--neon);
             border-radius: 20px;
             box-shadow: 0 0 50px rgba(0, 255, 65, 0.2), inset 0 0 20px rgba(0, 255, 65, 0.1);
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
             position: relative;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+            text-align: center;
         }
         /* Scanline Animation */
         .terminal::after {
@@ -44,14 +50,14 @@
         }
         @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
 
-        table { border-collapse: separate; border-spacing: 12px; transform: translateZ(50px); }
+        table { border-collapse: separate; border-spacing: 8px; transform: translateZ(50px); width: 100%; table-layout: fixed; }
         td {
-            width: 60px; height: 60px;
+            height: 52px;
             background: var(--cell);
             border: 1px solid rgba(0, 255, 65, 0.3);
             border-radius: 10px;
             text-align: center;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             transition: all 0.3s;
             text-shadow: 0 0 8px var(--neon);

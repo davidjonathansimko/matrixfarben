@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyber Farbspiel 3000</title>
     <style>
         :root {
@@ -20,26 +21,32 @@
             color: white;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start;
+            min-height: 100vh;
             margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
             perspective: 1500px;
-            overflow: hidden;
         }
 
         /* Die 3D-Glaskarte */
         .cyber-card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
-            padding: 40px;
+            padding: 24px;
             border-radius: 20px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(255,255,255,0.05);
             display: flex;
-            gap: 40px;
-            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-start;
+            justify-content: center;
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
+            width: 100%;
+            max-width: 480px;
+            box-sizing: border-box;
         }
 
         /* Radio Buttons als Neon-Auswahl */

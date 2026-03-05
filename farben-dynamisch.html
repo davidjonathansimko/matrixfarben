@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interaktives Farbspiel 3D</title>
     <style>
         :root {
@@ -15,43 +16,49 @@
             background-color: var(--bg-color);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
             margin: 0;
-            /* Wichtig für den 3D-Effekt */
+            padding: 16px;
+            box-sizing: border-box;
             perspective: 1000px;
         }
 
         .main-container {
             display: flex;
-            gap: 50px;
-            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            align-items: flex-start;
+            justify-content: center;
             background: var(--card-bg);
-            padding: 40px;
+            padding: 24px;
             border-radius: 20px;
             box-shadow: 0 20px 50px var(--shadow);
-            /* Ermöglicht 3D-Transformationen */
             transform-style: preserve-3d;
             transition: transform 0.1s ease-out;
+            width: 100%;
+            max-width: 520px;
+            box-sizing: border-box;
         }
 
         /* Linke Seite: Steuerung */
         .controls {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            transform: translateZ(30px); /* Schwebt leicht vor der Karte */
+            gap: 12px;
+            transform: translateZ(30px);
         }
 
         .controls label {
             cursor: pointer;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 8px;
             transition: background 0.3s;
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: bold;
+            font-size: 15px;
         }
 
         .controls label:hover { background: #f0f0f0; }
@@ -63,14 +70,14 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 60px);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
             transform-style: preserve-3d;
+            width: min(240px, 56vw);
         }
 
         .cell {
-            width: 60px;
-            height: 60px;
+            aspect-ratio: 1;
             border-radius: 8px;
             cursor: pointer;
             border: 2px solid rgba(255,255,255,0.2);
@@ -78,31 +85,34 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* Animation beim Hovern über ein einzelnes Quadrat */
         .cell:hover {
-            transform: translateZ(50px) scale(1.2) rotate(5deg);
+            transform: translateZ(30px) scale(1.15) rotate(5deg);
             box-shadow: 0 15px 30px rgba(0,0,0,0.3);
             z-index: 10;
         }
 
         /* Rechte Seite: Statistik */
         .stats {
-            min-width: 150px;
-            padding: 20px;
+            min-width: 130px;
+            padding: 16px;
             background: #f9f9f9;
             border-radius: 12px;
             border-left: 5px solid #ddd;
             transform: translateZ(30px);
             font-family: 'Courier New', Courier, monospace;
             line-height: 1.6;
+            font-size: 13px;
         }
 
-        /* Farbfelder */
-        .rot { background-color: #ff4d4d; }
+        .rot  { background-color: #ff4d4d; }
         .grün { background-color: #2ecc71; }
         .blau { background-color: #3498db; }
         .gelb { background-color: #f1c40f; }
 
+        @media (max-width: 400px) {
+            .main-container { padding: 16px; gap: 16px; }
+            .grid { width: 100%; }
+        }
     </style>
 </head>
 <body>
